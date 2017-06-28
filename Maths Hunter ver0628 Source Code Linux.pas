@@ -5,14 +5,17 @@ PROGRAM sbaGame;
    Author: Chu Ching Tin Einstein
    Description: a RPG game for ict SBA 2014-2015
    Last updated 2014-06-28 0200
+
+   Porting to Linux by BananaShinshi
+   Last updated 2017-06-28 1406
 }
 
 
 USES crt,dos,sysutils;
 
 TYPE
-    dungeonType=array[1..22, 1..47] of char;
-    dungeon1Type=array[1..22, 1..33] of char;
+    dungeonType=array[1..22, 1..46] of char;
+    dungeon1Type=array[1..22, 1..32] of char;
 	string30 = string[30];
 
 VAR
@@ -121,18 +124,6 @@ PROCEDURE VarSet;
                         X[A] := 35;
                         Y[A] := A+14; {changed from 30 to 15}
                    end;
-          end;
-
-PROCEDURE CursorOff;
-          var
-             Reg:Registers;
-          begin
-               with Reg do
-                    begin
-                         AH := 1;
-                         CH := $20
-                    end;
-               Intr($10, Reg)
           end;
 
 PROCEDURE Border;
@@ -246,9 +237,7 @@ PROCEDURE KeyScan;
           end;
 
 FUNCTION CheckRun:Boolean;
-         var
-            C:Boolean;
-         begin
+          begin
               CheckRun := false;
               if Y[1] = 2
               then begin
@@ -449,8 +438,6 @@ PROCEDURE snakeGame();
                L2;
           begin
                clrscr;
-               cursoroff;
-               clrscr;
                textcolor(yellow);
                writeln('Instructions');
                textcolor(white);
@@ -513,18 +500,17 @@ PROCEDURE checkDataDirCreation(
 
           var
              DataDirCreationText:text;
-             CreateData:string;
              NewDir:PathStr;
              t16,t17,t18,t19,t20:text;
 
           begin
                //-------------------Initializing data text files---------------------
-               NewDir := FSearch('C:\GameData', GetEnv('')); {look for GameData folder}
+               NewDir := FSearch('GameData', GetEnv('')); {look for GameData folder}
                if NewDir = ''                                 {create C:\GameData if not exist}
                then begin
-                         CreateDir('C:\GameData');
+                         CreateDir('GameData');
                          //-------------------make map text files----------------------
-                         assign(t16,'C:\GameData\Dungeon1finish.txt');
+                         assign(t16,'GameData/Dungeon1finish.txt');
                          rewrite(t16);
                          writeln(t16,'FFFFFFFFFFFFFFFFFFFFFFFFFTTTFFF');
                          writeln(t16,'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
@@ -549,7 +535,7 @@ PROCEDURE checkDataDirCreation(
                          writeln(t16,'FFFFFFFFFFFFFFFFFFFFFTTTTTTTFFF');
                          write(t16,'TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT');
                          close(t16);
-                         assign(t17,'C:\GameData\Dungeon2finish.txt');
+                         assign(t17,'GameData/Dungeon2finish.txt');
                          rewrite(t17);
                          writeln(t17,'TFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
                          writeln(t17,'TFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
@@ -574,7 +560,7 @@ PROCEDURE checkDataDirCreation(
                          writeln(t17,'FFFFFFFFTTTTTTTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
                          write(t17,'TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT');
                          close(t17);
-                         assign(t18,'C:\GameData\Dungeon1map.txt');
+                         assign(t18,'GameData/Dungeon1map.txt');
                          rewrite(t18);
                          writeln(t18,'|||||||||||||||||||||||||   |||');
                          writeln(t18,'|     |           | |   ||||| |');
@@ -599,7 +585,7 @@ PROCEDURE checkDataDirCreation(
                          writeln(t18,'|B|=|   | |   | |===|   | |   |');
                          write(t18,'|||||||||||||||||||||||||S|||||');
                          close(t18);
-                         assign(t19,'C:\GameData\Dungeon2map.txt');
+                         assign(t19,'GameData/Dungeon2map.txt');
                          rewrite(t19);
                          writeln(t19,' ||||||||||||||||||||||||||||||||||||||||||||');
                          writeln(t19,' ||B|     |       |       |||B  |   |       |');
@@ -625,12 +611,12 @@ PROCEDURE checkDataDirCreation(
                          write(t19,'|||||||||||S|||||||||||||||||||||||||||||||||');
                          close(t19);
                          //------------------make user list--------------------
-                         assign(t20,'C:\GameData\userIDs.txt');                              {new t20}
+                         assign(t20,'GameData/userIDs.txt');                              {new t20}
                          rewrite(t20);
                          write(t20,'ccm2IsHandsome');
                          close(t20);
                     end;
-               assign(DataDirCreationText,'C:\GameData\DataCreateion.txt');
+               assign(DataDirCreationText,'GameData/DataCreateion.txt');
                rewrite(DataDirCreationText);
                writeln(DataDirCreationText,'1');
                close(DataDirCreationText);
@@ -655,7 +641,7 @@ PROCEDURE createUserAccount();
                      clrscr;
                      write('Please input a username (within 30 characters): ');
                      readln(cUser);
-                     assign(usertext,'C:\GameData\userIDs.txt');
+                     assign(usertext,'GameData/userIDs.txt');
                      reset(usertext);
                      while not eof(usertext) do {check if username exist}
                            begin
@@ -670,24 +656,24 @@ PROCEDURE createUserAccount();
                      if uservalid
                      then begin
                                passuser[ci+1]:=cUser;
-                               assign(usertext,'C:\GameData\userIDs.txt');
+                               assign(usertext,'GameData/userIDs.txt');
                                rewrite(usertext);
                                for cc:=1 to ci+1 do      {save new username to username list}
                                writeln(usertext,passuser[cc]);
                                close(usertext);
                                //-------------------make user data files------------------------
                                //-------------------make text files filled with 0----------------------
-                               assign(t1,'C:\GameData\'+cUser+'_cal.txt');
-                               assign(t2,'C:\GameData\'+cUser+'_NoOfBattles.txt');
-                               assign(t3,'C:\GameData\'+cUser+'_NoOfRightAns.txt');
-                               assign(t4,'C:\GameData\'+cUser+'_NoOfWrongAns.txt');
-                               assign(t5,'C:\GameData\'+cUser+'_trigo.txt');
-                               assign(t6,'C:\GameData\'+cUser+'_UserATK.txt');
-                               assign(t7,'C:\GameData\'+cUser+'_UserCreation.txt');
-                               assign(t8,'C:\GameData\'+cUser+'_UserEXP.txt');
-                               assign(t9,'C:\GameData\'+cUser+'_UserHP.txt');
-                               assign(t10,'C:\GameData\'+cUser+'_ClearDungeon1.txt');
-                               assign(t11,'C:\GameData\'+cUser+'_ClearDungeon2.txt');
+                               assign(t1,'GameData/'+cUser+'_cal.txt');
+                               assign(t2,'GameData/'+cUser+'_NoOfBattles.txt');
+                               assign(t3,'GameData/'+cUser+'_NoOfRightAns.txt');
+                               assign(t4,'GameData/'+cUser+'_NoOfWrongAns.txt');
+                               assign(t5,'GameData/'+cUser+'_trigo.txt');
+                               assign(t6,'GameData/'+cUser+'_UserATK.txt');
+                               assign(t7,'GameData/'+cUser+'_UserCreation.txt');
+                               assign(t8,'GameData/'+cUser+'_UserEXP.txt');
+                               assign(t9,'GameData/'+cUser+'_UserHP.txt');
+                               assign(t10,'GameData/'+cUser+'_ClearDungeon1.txt');
+                               assign(t11,'GameData/'+cUser+'_ClearDungeon2.txt');
                                rewrite(t1);
                                rewrite(t2);
                                rewrite(t3);
@@ -722,9 +708,9 @@ PROCEDURE createUserAccount();
                                close(t10);
                                close(t11);
                                //-------------------make text files filled with 1----------------------
-                               assign(t12,'C:\GameData\'+cUser+'_UserDif.txt');
-                               assign(t13,'C:\GameData\'+cUser+'_UserLV.txt');
-                               assign(t14,'C:\GameData\'+cUser+'_UserMonster.txt');
+                               assign(t12,'GameData/'+cUser+'_UserDif.txt');
+                               assign(t13,'GameData/'+cUser+'_UserLV.txt');
+                               assign(t14,'GameData/'+cUser+'_UserMonster.txt');
                                rewrite(t12);
                                rewrite(t13);
                                rewrite(t14);
@@ -735,7 +721,7 @@ PROCEDURE createUserAccount();
                                close(t13);
                                close(t14);
                                //-------------------make empty text file----------------------
-                               assign(t15,'C:\GameData\'+cUser+'_UserName.txt');
+                               assign(t15,'GameData/'+cUser+'_UserName.txt');
                                rewrite(t15);
                                write(t15,'');
                                close(t15);
@@ -753,11 +739,11 @@ PROCEDURE createUserAccount();
                until uservalid;
                write('Please input a password: ');
                readln(cPassword);
-               assign(passtext,'C:\GameData\'+cUser+'_UserPassword.txt');  {save user password to file}
+               assign(passtext,'GameData/'+cUser+'_UserPassword.txt');  {save user password to file}
                rewrite(passtext);
                write(passtext,cPassword);
                close(passtext);
-               assign(t0,'C:\GameData\'+cUser+'_UserInfoCreation.txt');
+               assign(t0,'GameData/'+cUser+'_UserInfoCreation.txt');
                rewrite(t0);
                write(t0,'0');
                close(t0);
@@ -821,7 +807,7 @@ PROCEDURE login(
                      readln(LoUsername);
                      if LoUsername='ccm2IsHandsome'   {eater egg: snake game}
                      then snakeGame();
-                     assign(LoUsertext,'C:\GameData\userIDs.txt');
+                     assign(LoUsertext,'GameData/userIDs.txt');
                      reset(LoUsertext);
                      while not eof(LoUsertext) do     {check if user exist}
                            begin
@@ -860,7 +846,7 @@ PROCEDURE login(
                                GotoXY(24,13);
                                write('Password: ');
                                readln(LoInputPassword);
-                               assign(LoPasstext,'C:\GameData\'+LoUsername+'_UserPassword.txt');
+                               assign(LoPasstext,'GameData/'+LoUsername+'_UserPassword.txt');
                                reset(LoPasstext);
                                readln(LoPasstext,LoPassword);
                                close(LoPasstext);
@@ -917,7 +903,7 @@ FUNCTION userInfoCreated(
             UICtext:text;
             UIC:integer;
          begin
-              assign(UICtext,'C:\GameData\'+UICid+'_UserInfoCreation.txt');
+              assign(UICtext,'GameData/'+UICid+'_UserInfoCreation.txt');
               reset(UICtext);
               readln(UICtext,UIC);
               close(UICtext);
@@ -1069,23 +1055,23 @@ PROCEDURE MakeUser (
                //------------------Mark User information created in UserInfoCreation-----------------
                if MMonCV and MDifCV and MnameV
                then begin
-                    assign(MUserCreationText,'C:\GameData\'+MuserID+'_UserInfoCreation.txt');
+                    assign(MUserCreationText,'GameData/'+MuserID+'_UserInfoCreation.txt');
                     rewrite(MUserCreationText);
                     write(MUserCreationText,'1');
                     close(MUserCreationText);
                     end;
                //------------------Save User name to file-----------------
-               assign(MUserNameText,'C:\GameData\'+MuserID+'_UserName.txt');
+               assign(MUserNameText,'GameData/'+MuserID+'_UserName.txt');
                rewrite(MUserNameText);
                write(MUserNameText, NewUsername);
                close(MUserNameText);
                //------------------Save User monster to file-----------------
-               assign(MUserMonsterText,'C:\GameData\'+MuserID+'_UserMonster.txt');
+               assign(MUserMonsterText,'GameData/'+MuserID+'_UserMonster.txt');
                rewrite(MUserMonsterText);
                write(MUserMonsterText, MMonsterChoice);
                close(MUserMonsterText);
                //------------------Save Difficulty to file-----------------
-               assign(UserDifText,'C:\GameData\'+MuserID+'_UserDif.txt');
+               assign(UserDifText,'GameData/'+MuserID+'_UserDif.txt');
                rewrite(UserDifText);	
                write(UserDifText, MDifChoice);
                close(UserDifText);
@@ -1146,7 +1132,7 @@ PROCEDURE changeDif(
                               clrscr;
                          end;
                until (CDFdif=1) or (CDFdif=2) or (CDFdif=3);
-               assign(CDFtext,'C:\GameData\'+CDFuserID+'_UserDif.txt');
+               assign(CDFtext,'GameData/'+CDFuserID+'_UserDif.txt');
                rewrite(CDFtext);
                write(CDFtext,CDFdif);
                close(CDFtext);
@@ -1169,11 +1155,11 @@ PROCEDURE MyRoom(
                clrscr;
                TextColor(Yellow);
                //-----------------read and write username, user difficuty---------------------
-               assign(MRtext,'C:\GameData\'+MRuserID+'_UserName.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_UserName.txt');
                reset(MRtext);
                read(MRtext,MRusername);
                close(MRtext);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_UserDif.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_UserDif.txt');
                reset(MRtext);
                read(MRtext,MRDifChoice);
                close(MRtext);
@@ -1187,14 +1173,14 @@ PROCEDURE MyRoom(
                //----------------read and write user Monster, LV-----------------------
                TextColor(LightGreen);
                writeln('Current Status');
-               assign(MRtext,'C:\GameData\'+MRuserID+'_UserMonster.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_UserMonster.txt');
                reset(MRtext);
                read(MRtext,MRmonsterNo);
                close(MRtext);
                if MRmonsterNo='1'
                then MRmonster:='Diana'
                else MRmonster:='Taiga';
-               assign(MRtext,'C:\GameData\'+MRuserID+'_UserLV.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_UserLV.txt');
                reset(MRtext);
                read(MRtext,MRUserLV);
                close(MRtext);
@@ -1223,22 +1209,22 @@ PROCEDURE MyRoom(
                              end;
                     end;
                writeln('HP: ':17,MRUserHP:3,'ATK: ':17,MRUserATK:3);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_UserHP.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_UserHP.txt');
                rewrite(MRtext);
                write(MRtext,MRUserHP);
                close(MRtext);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_UserATK.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_UserATK.txt');
                rewrite(MRtext);
                write(MRtext,MRUserATK);
                close(MRtext);
                writeln('--------------------------------------------------------------------------------');
                //----------------read user's items from file and write it-----------------------
                TextColor(LightRed);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_trigo.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_trigo.txt');
                reset(MRtext);
                readln(MRtext,MRtrigo);
                close(MRtext);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_cal.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_cal.txt');
                reset(MRtext);
                readln(MRtext,MRcal);
                close(MRtext);
@@ -1248,23 +1234,23 @@ PROCEDURE MyRoom(
                //----------------read user's play data from files and write-----------------------
                TextColor(LightCyan);
                writeln('Your Records');
-               assign(MRtext,'C:\GameData\'+MRuserID+'_NoOfBattles.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_NoOfBattles.txt');
                reset(MRtext);
                read(MRtext,MRBattles);
                close(MRtext);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_NoOfRightAns.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_NoOfRightAns.txt');
                reset(MRtext);
                read(MRtext,MRRight);
                close(MRtext);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_NoOfWrongAns.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_NoOfWrongAns.txt');
                reset(MRtext);
                read(MRtext,MRWrong);
                close(MRtext);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_ClearDungeon1.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_ClearDungeon1.txt');
                reset(MRtext);
                read(MRtext,MRdun1);
                close(MRtext);
-               assign(MRtext,'C:\GameData\'+MRuserID+'_ClearDungeon2.txt');
+               assign(MRtext,'GameData/'+MRuserID+'_ClearDungeon2.txt');
                reset(MRtext);
                read(MRtext,MRdun2);
                close(MRtext);
@@ -1304,7 +1290,7 @@ PROCEDURE getItems(
                randomize;
                if random()>0.8
                then begin
-                         assign(GETtext,'C:\GameData\'+GETuserID+'_cal.txt');
+                         assign(GETtext,'GameData/'+GETuserID+'_cal.txt');
                          reset(GETtext);
                          readln(GETtext,GETcal);
                          GETcal:=GETcal+1;
@@ -1317,7 +1303,7 @@ PROCEDURE getItems(
                          delay(2200);
                     end
                else begin
-                         assign(GETtext,'C:\GameData\'+GETuserID+'_trigo.txt');
+                         assign(GETtext,'GameData/'+GETuserID+'_trigo.txt');
                          reset(GETtext);
                          readln(GETtext,GETtrigo);
                          GETtrigo:=GETtrigo+1;
@@ -1444,8 +1430,8 @@ PROCEDURE UseItems(
              UItrigo,UIcal,UIinput:integer;
 
           begin
-               assign(UItext1,'C:\GameData\'+UIuserID+'_trigo.txt');
-               assign(UItext2,'C:\GameData\'+UIuserID+'_cal.txt');
+               assign(UItext1,'GameData/'+UIuserID+'_trigo.txt');
+               assign(UItext2,'GameData/'+UIuserID+'_cal.txt');
                reset(UItext1);
                reset(UItext2);
                readln(UItext1,UItrigo);
@@ -1532,16 +1518,16 @@ PROCEDURE SmallBattle(
                randomize;
                chosMon:=random; {Random a monster to battle with}
                //---------------initial user HP------------------
-               assign(SBtext,'C:\GameData\'+SBuserID+'_UserHP.txt');
+               assign(SBtext,'GameData/'+SBuserID+'_UserHP.txt');
                reset(SBtext);
                read(SBtext,initSBHP);
                close(SBtext);
                //---------------read user total HP------------------
-               assign(SBtext,'C:\GameData\'+SBuserID+'_UserMonster.txt');
+               assign(SBtext,'GameData/'+SBuserID+'_UserMonster.txt');
                reset(SBtext);
                readln(SBtext,userMonsChoice);
                close(SBtext);
-               assign(SBtext,'C:\GameData\'+SBuserID+'_UserLV.txt');
+               assign(SBtext,'GameData/'+SBuserID+'_UserLV.txt');
                reset(SBtext);
                readln(SBtext,SBLV);
                close(SBtext);
@@ -1569,7 +1555,7 @@ PROCEDURE SmallBattle(
                initmonsHP:=monsHP; {initial monster HP}
                clrscr;
                writeln('A ',SBmonster,' appeared!');
-               delay(1500);
+               delay(750);
                write('Ready');
                write('.');
                delay(200);
@@ -1584,7 +1570,7 @@ PROCEDURE SmallBattle(
                write('.');
                delay(200);
                writeln(' Battle Start!');
-               delay(1500);
+               delay(1000);
                clrscr;
                repeat
                      clrscr;
@@ -1657,8 +1643,8 @@ PROCEDURE SmallBattle(
                      //----------------write answer right or wrong, and record the number of rights and wrongs------------------
                      if (UseItemSkip=FALSE) and (itemDone=TRUE)
                      then begin
-                     Assign(SBtext,'C:\GameData\'+SBuserID+'_NoOfRightAns.txt');
-                     Assign(SBtext2,'C:\GameData\'+SBuserID+'_NoOfWrongAns.txt');
+                     Assign(SBtext,'GameData/'+SBuserID+'_NoOfRightAns.txt');
+                     Assign(SBtext2,'GameData/'+SBuserID+'_NoOfWrongAns.txt');
                      reset(SBtext);
                      reset(SBtext2);
                      readln(SBtext,SBright);
@@ -1681,7 +1667,7 @@ PROCEDURE SmallBattle(
                                end;
                      close(SBtext);
                      close(SBtext2);
-                     delay(2000);
+                     delay(500);
                      clrscr;
                      end;
                until (SBHP<=0) or (monsHP<=0);
@@ -1689,7 +1675,7 @@ PROCEDURE SmallBattle(
                if monsHP<=0
                then begin
                          //---------------add EXP-------------------
-                         assign(SBtext4,'C:\GameData\'+SBuserID+'_UserEXP.txt');
+                         assign(SBtext4,'GameData/'+SBuserID+'_UserEXP.txt');
                          reset(SBtext4);
                          read(SBtext4,SBEXP);
                          SBEXP:=SBEXP+SBexpUp;
@@ -1697,7 +1683,7 @@ PROCEDURE SmallBattle(
                          write(SBtext4,SBEXP);
                          close(SBtext4);
                          //---------------Level up if EXP enough----------------
-                         assign(SBtext4,'C:\GameData\'+SBuserID+'_UserLV.txt');
+                         assign(SBtext4,'GameData/'+SBuserID+'_UserLV.txt');
                          reset(SBtext4);
                          read(SBtext4,SBLV);
                          repeat
@@ -1712,11 +1698,11 @@ PROCEDURE SmallBattle(
                                   totalSBHP:=trunc(totalSBHP*1.1);
                                   SBATK:=trunc(SBATK*1.1);
                              end;
-                         assign(SBtext4,'C:\GameData\'+SBuserID+'_UserHP.txt');
+                         assign(SBtext4,'GameData/'+SBuserID+'_UserHP.txt');
                          rewrite(SBtext4);
                          write(SBtext4,totalSBHP);
                          close(SBtext4);
-                         assign(SBtext4,'C:\GameData\'+SBuserID+'_UserATK.txt');
+                         assign(SBtext4,'GameData/'+SBuserID+'_UserATK.txt');
                          rewrite(SBtext4);
                          write(SBtext4,SBATK);
                          close(SBtext4);
@@ -1726,11 +1712,11 @@ PROCEDURE SmallBattle(
                          TextColor(white);
                          writeln('Congratulations! You won this battle!');
                          write('EXP gained = ',SBexpUP);
-                         delay(1000);
+                         delay(300);
                          write('.');
-                         delay(1000);
+                         delay(300);
                          write('.');
-                         delay(1000);
+                         delay(300);
                          writeln('.');
                          clrscr;
 
@@ -1745,7 +1731,7 @@ PROCEDURE SmallBattle(
                          clrscr;
                     end;
                //------------------count of battles +1------------------
-               assign(SBtext3,'C:\GameData\'+SBuserID+'_NoOfBattles.txt');
+               assign(SBtext3,'GameData/'+SBuserID+'_NoOfBattles.txt');
                reset(SBtext3);
                readln(SBtext3,SBbattles);
                SBbattles:=SBbattles+1;
@@ -1771,16 +1757,16 @@ PROCEDURE BossBattle1(
           begin
                BB1win:=FALSE;
                //---------------initial user HP------------------
-               assign(BBtext,'C:\GameData\'+BBuserID+'_UserHP.txt');
+               assign(BBtext,'GameData/'+BBuserID+'_UserHP.txt');
                reset(BBtext);
                read(BBtext,initBBHP);
                close(BBtext);
                //---------------read user total HP------------------
-               assign(BBtext,'C:\GameData\'+BBuserID+'_UserMonster.txt');
+               assign(BBtext,'GameData/'+BBuserID+'_UserMonster.txt');
                reset(BBtext);
                readln(BBtext,userMonsChoice);
                close(BBtext);
-               assign(BBtext,'C:\GameData\'+BBuserID+'_UserLV.txt');
+               assign(BBtext,'GameData/'+BBuserID+'_UserLV.txt');
                reset(BBtext);
                readln(BBtext,BBLV);
                close(BBtext);
@@ -1847,8 +1833,8 @@ PROCEDURE BossBattle1(
                      //----------------write answer right or wrong, and record the number of rights and wrongs------------------
                      if (UseItemSkip=FALSE) and (itemDone=TRUE)
                      then begin
-                     Assign(BBtext,'C:\GameData\'+BBuserID+'_NoOfRightAns.txt');
-                     Assign(BBtext2,'C:\GameData\'+BBuserID+'_NoOfWrongAns.txt');
+                     Assign(BBtext,'GameData/'+BBuserID+'_NoOfRightAns.txt');
+                     Assign(BBtext2,'GameData/'+BBuserID+'_NoOfWrongAns.txt');
                      reset(BBtext);
                      reset(BBtext2);
                      readln(BBtext,BBright);
@@ -1871,7 +1857,7 @@ PROCEDURE BossBattle1(
                                end;
                      close(BBtext);
                      close(BBtext2);
-                     delay(2000);
+                     delay(500);
                      clrscr;
                      end;
                until (BBHP<=0) or (monsHP<=0);
@@ -1880,12 +1866,12 @@ PROCEDURE BossBattle1(
                then begin
                          BB1win:=TRUE;
                          //---------------marked dungeon 1 cleared to file-------------------
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_ClearDungeon1.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_ClearDungeon1.txt');
                          rewrite(BBtext4);
                          write(BBtext4,1);
                          close(BBtext4);
                          //---------------add EXP-------------------
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserEXP.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserEXP.txt');
                          reset(BBtext4);
                          read(BBtext4,BBEXP);
                          BBEXP:=BBEXP+BBexpUp;
@@ -1893,7 +1879,7 @@ PROCEDURE BossBattle1(
                          write(BBtext4,BBEXP);
                          close(BBtext4);
                          //---------------Level up if EXP enough----------------
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserLV.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserLV.txt');
                          reset(BBtext4);
                          read(BBtext4,BBLV);
                          repeat
@@ -1908,11 +1894,11 @@ PROCEDURE BossBattle1(
                                   BBHP:=trunc(totalBBHP*1.1);
                                   SBATK:=trunc(SBATK*1.1);
                              end;
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserHP.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserHP.txt');
                          rewrite(BBtext4);
                          write(BBtext4,totalBBHP);
                          close(BBtext4);
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserATK.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserATK.txt');
                          rewrite(BBtext4);
                          write(BBtext4,SBATK);
                          close(BBtext4);
@@ -1922,7 +1908,7 @@ PROCEDURE BossBattle1(
                if BBHP<=0
                then BB1win:=FALSE;
                //------------------count of battles +1------------------
-               assign(BBtext3,'C:\GameData\'+BBuserID+'_NoOfBattles.txt');
+               assign(BBtext3,'GameData/'+BBuserID+'_NoOfBattles.txt');
                reset(BBtext3);
                readln(BBtext3,BBbattles);
                BBbattles:=BBbattles+1;
@@ -1948,16 +1934,16 @@ PROCEDURE BossBattle2(
           begin
                BB2win:=FALSE;
                //---------------initial user HP------------------
-               assign(BBtext,'C:\GameData\'+BBuserID+'_UserHP.txt');
+               assign(BBtext,'GameData/'+BBuserID+'_UserHP.txt');
                reset(BBtext);
                read(BBtext,initBBHP);
                close(BBtext);
                //---------------read user total HP------------------
-               assign(BBtext,'C:\GameData\'+BBuserID+'_UserMonster.txt');
+               assign(BBtext,'GameData/'+BBuserID+'_UserMonster.txt');
                reset(BBtext);
                readln(BBtext,userMonsChoice);
                close(BBtext);
-               assign(BBtext,'C:\GameData\'+BBuserID+'_UserLV.txt');
+               assign(BBtext,'GameData/'+BBuserID+'_UserLV.txt');
                reset(BBtext);
                readln(BBtext,BBLV);
                close(BBtext);
@@ -2024,8 +2010,8 @@ PROCEDURE BossBattle2(
                      //----------------write answer right or wrong, and record the number of rights and wrongs------------------
                      if (UseItemSkip=FALSE) and (itemDone=TRUE)
                      then begin
-                     Assign(BBtext,'C:\GameData\'+BBuserID+'_NoOfRightAns.txt');
-                     Assign(BBtext2,'C:\GameData\'+BBuserID+'_NoOfWrongAns.txt');
+                     Assign(BBtext,'GameData/'+BBuserID+'_NoOfRightAns.txt');
+                     Assign(BBtext2,'GameData/'+BBuserID+'_NoOfWrongAns.txt');
                      reset(BBtext);
                      reset(BBtext2);
                      readln(BBtext,BBright);
@@ -2048,7 +2034,7 @@ PROCEDURE BossBattle2(
                                end;
                      close(BBtext);
                      close(BBtext2);
-                     delay(2000);
+                     delay(500);
                      clrscr;
                      end;
                until (BBHP<=0) or (monsHP<=0);
@@ -2057,12 +2043,12 @@ PROCEDURE BossBattle2(
                then begin
                          BB2win:=TRUE;
                          //---------------marked dungeon 1 cleared to file-------------------
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_ClearDungeon2.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_ClearDungeon2.txt');
                          rewrite(BBtext4);
                          write(BBtext4,1);
                          close(BBtext4);
                          //---------------add EXP-------------------
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserEXP.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserEXP.txt');
                          reset(BBtext4);
                          read(BBtext4,BBEXP);
                          BBEXP:=BBEXP+BBexpUp;
@@ -2070,7 +2056,7 @@ PROCEDURE BossBattle2(
                          write(BBtext4,BBEXP);
                          close(BBtext4);
                          //---------------Level up if EXP enough----------------
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserLV.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserLV.txt');
                          reset(BBtext4);
                          read(BBtext4,BBLV);
                          repeat
@@ -2085,11 +2071,11 @@ PROCEDURE BossBattle2(
                                   BBHP:=trunc(totalBBHP*1.1);
                                   SBATK:=trunc(SBATK*1.1);
                              end;
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserHP.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserHP.txt');
                          rewrite(BBtext4);
                          write(BBtext4,totalBBHP);
                          close(BBtext4);
-                         assign(BBtext4,'C:\GameData\'+BBuserID+'_UserATK.txt');
+                         assign(BBtext4,'GameData/'+BBuserID+'_UserATK.txt');
                          rewrite(BBtext4);
                          write(BBtext4,SBATK);
                          close(BBtext4);
@@ -2099,7 +2085,7 @@ PROCEDURE BossBattle2(
                if BBHP<=0
                then BB2win:=FALSE;
                //------------------count of battles +1------------------
-               assign(BBtext3,'C:\GameData\'+BBuserID+'_NoOfBattles.txt');
+               assign(BBtext3,'GameData/'+BBuserID+'_NoOfBattles.txt');
                reset(BBtext3);
                readln(BBtext3,BBbattles);
                BBbattles:=BBbattles+1;
@@ -2118,7 +2104,7 @@ PROCEDURE Boss1Intro(
              B1Iusername:string;
 
           begin
-               assign(B1Itext,'C:\GameData\'+B1IuserID+'_UserName.txt');
+               assign(B1Itext,'GameData/'+B1IuserID+'_UserName.txt');
                reset(B1Itext);
                readln(B1Itext,B1Iusername);
                close(B1Itext);
@@ -2165,7 +2151,7 @@ PROCEDURE Boss1After(
              B1Ausername:string;
 
           begin
-               assign(B1Atext,'C:\GameData\'+B1AuserID+'_UserName.txt');
+               assign(B1Atext,'GameData/'+B1AuserID+'_UserName.txt');
                reset(B1Atext);
                readln(B1Atext,B1Ausername);
                close(B1Atext);
@@ -2217,7 +2203,7 @@ PROCEDURE Boss2Intro(
              B2Iusername:string;
 
           begin
-               assign(B2Itext,'C:\GameData\'+B2IuserID+'_UserName.txt');
+               assign(B2Itext,'GameData/'+B2IuserID+'_UserName.txt');
                reset(B2Itext);
                readln(B2Itext,B2Iusername);
                close(B2Itext);
@@ -2264,7 +2250,7 @@ PROCEDURE Boss2After(
              B2Ausername:string;
 
           begin
-               assign(B2Atext,'C:\GameData\'+B2AuserID+'_UserName.txt');
+               assign(B2Atext,'GameData/'+B2AuserID+'_UserName.txt');
                reset(B2Atext);
                readln(B2Atext,B2Ausername);
                close(B2Atext);
@@ -2359,7 +2345,7 @@ PROCEDURE keyControl(
                                                        clrscr;
                                                        TextColor(LightRed);
                                                        writeln('You cannot walk across things!');
-                                                       delay(500);
+                                                       delay(250);
                                                        clrscr;
                                                   end;
                              end;
@@ -2391,7 +2377,7 @@ PROCEDURE keyControl(
                                                        clrscr;
                                                        TextColor(LightRed);
                                                        writeln('You cannot walk across things!');
-                                                       delay(500);
+                                                       delay(250);
                                                        clrscr;
                                                   end;
                              end;
@@ -2421,7 +2407,7 @@ PROCEDURE keyControl(
                                                   clrscr;
                                                   TextColor(LightRed);
                                                   writeln('You cannot walk across things!');
-                                                  delay(500);
+                                                  delay(250);
                                                   clrscr;
                                              end;
                              end;
@@ -2451,7 +2437,7 @@ PROCEDURE keyControl(
                                                   clrscr;
                                                   TextColor(LightRed);
                                                   writeln('You cannot walk across things!');
-                                                  delay(500);
+                                                  delay(250);
                                                   clrscr;
                                              end;
                              end;
@@ -2512,7 +2498,7 @@ PROCEDURE keyControl1(
                                                        clrscr;
                                                        TextColor(LightRed);
                                                        writeln('You cannot walk across things!');
-                                                       delay(500);
+                                                       delay(250);
                                                        clrscr;
                                                   end;
                              end;
@@ -2544,7 +2530,7 @@ PROCEDURE keyControl1(
                                                        clrscr;
                                                        TextColor(LightRed);
                                                        writeln('You cannot walk across things!');
-                                                       delay(500);
+                                                       delay(250);
                                                        clrscr;
                                                   end;
                              end;
@@ -2574,7 +2560,7 @@ PROCEDURE keyControl1(
                                                   clrscr;
                                                   TextColor(LightRed);
                                                   writeln('You cannot walk across things!');
-                                                  delay(500);
+                                                  delay(250);
                                                   clrscr;
                                              end;
                              end;
@@ -2604,7 +2590,7 @@ PROCEDURE keyControl1(
                                                   clrscr;
                                                   TextColor(LightRed);
                                                   writeln('You cannot walk across things!');
-                                                  delay(500);
+                                                  delay(250);
                                                   clrscr;
                                              end;
                              end;
@@ -2632,11 +2618,11 @@ PROCEDURE dungeon1(
                leaveDungeon:=FALSE;
                TextColor(white);
                //----------------read dungeon map to dungeon1map[y,x]----------------
-               assign(dungeon1Text,'C:\GameData\Dungeon1map.txt');
+               assign(dungeon1Text,'GameData/Dungeon1map.txt');
                reset(dungeon1Text);
                for y:=1 to 22 do
                    begin
-                        for x:=1 to 33 do
+                        for x:=1 to 32 do
                             begin
                                  read(dungeon1Text,dungeon1map[y,x]);
                                  if dungeon1map[y,x]=' '
@@ -2651,11 +2637,11 @@ PROCEDURE dungeon1(
                //----------------repeat for dungeon----------------
                repeat
                //----------------read map finish part----------------
-               assign(dungeon1FinishText,'C:\GameData\Dungeon1finish.txt');
+               assign(dungeon1FinishText,'GameData/Dungeon1finish.txt');
                reset(dungeon1FinishText);
                for y:=1 to 22 do
                    begin
-                        for x:=1 to 33 do
+                        for x:=1 to 32 do
                             read(dungeon1FinishText,dungeon1Finish[y,x]);
                    end;
                close(dungeon1FinishText);
@@ -2722,11 +2708,11 @@ PROCEDURE dungeon1(
                //--------------key control-------------------
                keyControl1(DUNuserID,dungeon1map,dungeon1Finish,DUNHP,DUNATK,DUNDifChoice,ux,uy,leaveDungeon,DUNBossWin1);
                //----------------write map finish part----------------
-               assign(dungeon1FinishText,'C:\GameData\Dungeon1finish.txt');
+               assign(dungeon1FinishText,'GameData/Dungeon1finish.txt');
                rewrite(dungeon1FinishText);
                for y:=1 to 22 do
                    begin
-                        for x:=1 to 33 do
+                        for x:=1 to 32 do
                             write(dungeon1FinishText,dungeon1Finish[y,x]);
                    end;
                close(dungeon1FinishText);
@@ -2754,11 +2740,11 @@ PROCEDURE dungeon2(
                leaveDungeon:=FALSE;
                TextColor(white);
                //----------------read dungeon map to dungeon2map[y,x]----------------
-               assign(dungeon2Text,'C:\GameData\Dungeon2map.txt');
+               assign(dungeon2Text,'GameData/Dungeon2map.txt');
                reset(dungeon2Text);
                for y:=1 to 22 do
                    begin
-                        for x:=1 to 47 do
+                        for x:=1 to 46 do
                             begin
                                  read(dungeon2Text,dungeon2map[y,x]);
                                  if dungeon2map[y,x]=' '
@@ -2773,11 +2759,11 @@ PROCEDURE dungeon2(
                //----------------repeat for dungeon----------------
                repeat
                //----------------read map finish part----------------
-               assign(dungeon2FinishText,'C:\GameData\Dungeon2finish.txt');
+               assign(dungeon2FinishText,'GameData/Dungeon2finish.txt');
                reset(dungeon2FinishText);
                for y:=1 to 22 do
                    begin
-                        for x:=1 to 47 do
+                        for x:=1 to 46 do
                             read(dungeon2FinishText,dungeon2Finish[y,x]);
                    end;
                close(dungeon2FinishText);
@@ -2844,11 +2830,11 @@ PROCEDURE dungeon2(
                //--------------key control-------------------
                keyControl(DUNuserID,dungeon2map,dungeon2Finish,DUNHP,DUNATK,DUNDifChoice,ux,uy,leaveDungeon,DUNBossWin2);
                //----------------read map finish part----------------
-               assign(dungeon2FinishText,'C:\GameData\Dungeon2finish.txt');
+               assign(dungeon2FinishText,'GameData/Dungeon2finish.txt');
                rewrite(dungeon2FinishText);
                for y:=1 to 22 do
                    begin
-                        for x:=1 to 47 do
+                        for x:=1 to 46 do
                             write(dungeon2FinishText,dungeon2Finish[y,x]);
                    end;
                close(dungeon2FinishText);
@@ -2896,7 +2882,7 @@ PROCEDURE ViewRank();
 //-------------------------Main program---------------------------
 BEGIN
      titleScreen();
-     if not FileExists('C:\GameData\DataCreateion.txt')
+     if not FileExists('GameData/DataCreateion.txt')
      then checkDataDirCreation(DataDirCreated);
      login(GotoDungeon,userID);
      if not userInfoCreated(userID)

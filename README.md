@@ -25,4 +25,5 @@ Run:
   * Shorten delay time
 
 ### What's still not fixed?
+  * Cursor is not hidden
   * Snake Game
