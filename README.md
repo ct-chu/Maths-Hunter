@@ -1,15 +1,11 @@
 # Maths Hunter
 
-Author: Chu Ching Tin Einstein
 
-A RPG game for ict SBA 2014-2015
+
+A RPG game for ICT SBA 2014-2015
 Last updated 2014-06-28 0200
 
 ## Porting to Linux
-
-Porting: BananaShinshi
-
-Last updated 2017-06-28 1406
 
 ### How to run?
 Compile:
